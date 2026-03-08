@@ -39,10 +39,10 @@ config:
   - name: DOCUMENT_PARSER_BASE_URL
     type: string
     required: false
-    default: http://47.111.146.164:8088/taidp/v1/idp/general_parse
+    default: http://47.111.146.164:8088
     description:
-      en: API Base URL
-      zh: API 基础地址
+      en: API Base URL (without path)
+      zh: API 基础地址（不含路径）
 
 # 命令定义
 commands:

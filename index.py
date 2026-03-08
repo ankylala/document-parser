@@ -12,7 +12,8 @@ import requests
 from pathlib import Path
 
 # 配置
-DEFAULT_BASE_URL = "http://47.111.146.164:8088/taidp/v1/idp/general_parse"
+DEFAULT_BASE_URL = "http://47.111.146.164:8088"
+DEFAULT_API_PATH = "/taidp/v1/idp/general_parse"
 CONFIG_FILE = Path(__file__).parent / "config.json"
 
 def get_config():
@@ -50,6 +51,8 @@ def parse_document(file_path, layout_analysis=True, table_recognition=True,
         解析结果
     """
     config = get_config()
+    base_url = config["base_url"].rstrip("/")
+    api_url = f"{base_url}{DEFAULT_API_PATH}"
     
     # API Key 可选（有些服务不需要）
     if not config["api_key"]:
@@ -68,18 +71,20 @@ def parse_document(file_path, layout_analysis=True, table_recognition=True,
         with open(file_path, "rb") as f:
             files = {"file": (Path(file_path).name, f)}
             
-            data = {
-                "layout_analysis": str(layout_analysis).lower(),
-                "table_recognition": str(table_recognition).lower(),
-                "seal_recognition": str(seal_recognition).lower(),
-                "output_format": output_format
+            data: dict = {
+                "layout_analysis_en": 1 if layout_analysis else 0,
+                "table_reco_en": 1 if table_recognition else 0,
+                "seal_reco_en": 1 if seal_recognition else 0,
             }
+            
+            if output_format and output_format != "json":
+                data["md_image_format"] = "url"
             
             if page_range:
                 data["page_range"] = page_range
             
             response = requests.post(
-                config["base_url"],
+                api_url,
                 headers=headers,
                 files=files,
                 data=data,
